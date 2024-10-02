@@ -8,5 +8,5 @@ import org.springframework.boot.runApplication
 open class ParseApplication
 
 fun main(args: Array<String>) {
-    runApplication<ParseApplication>(*args)
+  runApplication<ParseApplication>(*args)
 }
