@@ -1,0 +1,12 @@
+services:
+  parse:
+    container_name: parse
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app_src
+    env_file:
+      - .env
+    ports:
+      - ${APP_PORT}
