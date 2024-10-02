@@ -6,7 +6,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import kotlin.test.Test
 
-@WebMvcTest(HealthController::class)
+@WebMvcTest
 class HealthControllerTest {
 
   @Autowired
