@@ -20,4 +20,13 @@ class HealthControllerTest {
         content { string("Service is running") }
       }
   }
+
+  @Test
+  fun `sayHello should return OK status with Hello, World! message`() {
+    mockMvc.get("/health/hello")
+      .andExpect {
+        status { isOk() }
+        content { string("Hello, World!") }
+      }
+  }
 }

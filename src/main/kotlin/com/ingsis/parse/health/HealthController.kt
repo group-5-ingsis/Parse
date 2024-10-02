@@ -14,4 +14,9 @@ class HealthController {
   fun checkHealth(): ResponseEntity<String> {
     return ResponseEntity("Service is running", HttpStatus.OK)
   }
+
+  @GetMapping("/hello")
+  fun sayHello(): ResponseEntity<String> {
+    return ResponseEntity("Hello, World!", HttpStatus.OK)
+  }
 }

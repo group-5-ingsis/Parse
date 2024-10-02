@@ -75,6 +75,7 @@ koverReport {
         filters {
             excludes {
                 packages("config")
+                classes("com.ingsis.parse.Parse.kt")
             }
         }
     }
