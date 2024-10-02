@@ -94,3 +94,7 @@ ktlint {
 test {
     jvmArgs("-XX:+EnableDynamicAgentLoading", "-Djdk.instrument.traceUsage", "-Xshare:off")
 }
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
