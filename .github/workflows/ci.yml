@@ -1,9 +1,6 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
@@ -35,5 +32,8 @@ jobs:
       - name: Formatting/Linting
         run: ./gradlew ktlintCheck
 
-      - name: Tests/Coverage
+      - name: Tests
         run: ./gradlew koverVerify
+
+      - name: Build Docker Image
+        run: docker build -t my-parser-image .

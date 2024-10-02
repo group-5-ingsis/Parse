@@ -3,8 +3,10 @@ services:
     container_name: parse
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app_src
     env_file:
-      - src/main/resources/.env
+      - .env
     ports:
-      - ${APP_PORT}:${APP_PORT}
+      - ${APP_PORT}

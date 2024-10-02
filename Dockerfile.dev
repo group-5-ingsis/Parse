@@ -1,8 +1,0 @@
-FROM gradle:8.10.1-jdk21
-
-COPY . /home/gradle/src
-WORKDIR /home/gradle/src
-
-RUN ./gradlew build
-
-ENTRYPOINT ["java", "-jar", "/home/gradle/src/build/libs/Permission.jar"]
