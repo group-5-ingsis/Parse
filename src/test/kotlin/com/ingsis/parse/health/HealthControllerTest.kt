@@ -6,11 +6,8 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import kotlin.test.Test
 
-@WebMvcTest
-class HealthControllerTest {
-
-  @Autowired
-  lateinit var mockMvc: MockMvc
+@WebMvcTest(HealthController::class)
+class HealthControllerTest(@Autowired val mockMvc: MockMvc) {
 
   @Test
   fun `checkHealth should return OK status with a message`() {
@@ -27,6 +24,40 @@ class HealthControllerTest {
       .andExpect {
         status { isOk() }
         content { string("Hello, World!") }
+      }
+  }
+
+  @Test
+  fun `getServiceInfo should return service info`() {
+    mockMvc.get("/health/info")
+      .andExpect {
+        status { isOk() }
+        content { string("Service Name: Parse Service\nVersion: 1.0.0") }
+      }
+  }
+
+  @Test
+  fun `getCurrentTimestamp should return current timestamp`() {
+    mockMvc.get("/health/timestamp")
+      .andExpect {
+        status { isOk() }
+      }
+  }
+
+  @Test
+  fun `getHealthStatus should return health status`() {
+    mockMvc.get("/health/health/status")
+      .andExpect {
+        status { isOk() }
+      }
+  }
+
+  @Test
+  fun `sayGoodbye should return goodbye message`() {
+    mockMvc.get("/health/goodbye")
+      .andExpect {
+        status { isOk() }
+        content { string("Goodbye, World!") }
       }
   }
 }
