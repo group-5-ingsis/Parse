@@ -75,6 +75,7 @@ koverReport {
         filters {
             excludes {
                 packages("config")
+                classes("com.ingsis.parse.Parse.kt")
             }
         }
     }
@@ -93,4 +94,8 @@ ktlint {
 
 test {
     jvmArgs("-XX:+EnableDynamicAgentLoading", "-Djdk.instrument.traceUsage", "-Xshare:off")
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
 }

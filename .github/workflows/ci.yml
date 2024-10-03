@@ -36,4 +36,4 @@ jobs:
         run: ./gradlew koverVerify
 
       - name: Build Docker Image
-        run: docker build -t my-parser-image .
+        run: docker build -t parser .
