@@ -2,13 +2,13 @@ package com.ingsis.parse.health
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.context.annotation.Profile
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import kotlin.test.Test
 
 @WebMvcTest(HealthController::class)
-@Profile("test")
+@ActiveProfiles("test")
 class HealthControllerTest(@Autowired val mockMvc: MockMvc) {
 
   @Test
