@@ -1,8 +1,12 @@
-name: Reuse CD Workflow
+name: CD
 
 on:
   push:
     branches: [ "main", "dev" ]
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   cd:
