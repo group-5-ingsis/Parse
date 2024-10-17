@@ -1,13 +1,8 @@
 plugins {
-    // Kotlin
     id 'org.jetbrains.kotlin.jvm' version '1.9.25'
-
-    //Springboot
     id 'org.springframework.boot' version '3.3.4'
     id 'io.spring.dependency-management' version '1.1.6'
     id 'org.jetbrains.kotlin.plugin.jpa' version '1.9.25'
-
-    // Formatter & Linter
     id 'org.jlleitschuh.gradle.ktlint' version '11.5.0'
     id 'org.jetbrains.kotlinx.kover' version '0.7.3'
 }
@@ -22,7 +17,16 @@ java {
 }
 
 repositories {
-	mavenCentral()
+    mavenLocal()
+    mavenCentral()
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/mPiccinini/PrintScript")
+        credentials {
+            username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+            password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+        }
+    }
 }
 
 dependencies {
@@ -37,6 +41,16 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-reactor'
     implementation 'io.projectreactor.kotlin:reactor-kotlin-extensions'
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.17.1'
+
+    // PrintScript
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.0'
+    implementation 'com.ingsis:lexer:1.1.0'
+    implementation 'com.ingsis:parser:1.1.0'
+    implementation 'com.ingsis:interpreter:1.1.0'
+    implementation 'com.ingsis:formatter:1.1.0'
+    implementation 'com.ingsis:linter:1.1.0'
+    implementation 'com.ingsis:cli:1.1.0'
+    implementation 'com.ingsis:shared:1.1.0'
 
     annotationProcessor('org.projectlombok:lombok:1.18.34')
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
