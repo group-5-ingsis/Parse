@@ -12,5 +12,5 @@ jobs:
   cd:
     uses: group-5-ingsis/workflows/.github/workflows/cd-containers.yml@main
     with:
-      image: 'snippets-app'
-      environment: ${{ github.ref_name == 'main' || 'dev' }}  
+      image: 'parse'
+      environment: ${{ github.ref_name }}
