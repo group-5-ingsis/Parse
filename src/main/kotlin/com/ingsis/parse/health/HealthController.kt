@@ -17,6 +17,11 @@ class HealthController {
     return ResponseEntity("Service is running", HttpStatus.OK)
   }
 
+  @GetMapping("/testing")
+  fun testChangingDockerImage(): ResponseEntity<String> {
+    return ResponseEntity("Testing is working OK.", HttpStatus.OK)
+  }
+
   @GetMapping("/hello")
   fun sayHello(): ResponseEntity<String> {
     return ResponseEntity("Hello, World!", HttpStatus.OK)
