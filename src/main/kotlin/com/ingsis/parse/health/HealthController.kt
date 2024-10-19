@@ -19,7 +19,7 @@ class HealthController {
 
   @GetMapping("/hello")
   fun sayHello(): ResponseEntity<String> {
-    return ResponseEntity("Hello, Worlfklasjfkld!", HttpStatus.OK)
+    return ResponseEntity("Hello, World!", HttpStatus.OK)
   }
 
   @GetMapping("/info")
