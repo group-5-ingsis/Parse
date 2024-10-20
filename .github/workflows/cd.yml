@@ -15,3 +15,7 @@ jobs:
       AZURE_DEV_KEY: ${{ secrets.AZURE_DEV_KEY }}
       AZURE_DEV_USER: ${{ secrets.AZURE_DEV_USER }}
       AZURE_DEV_HOST: ${{ secrets.AZURE_DEV_HOST }}
+
+      AZURE_MAIN_KEY: ${{ secrets.AZURE_MAIN_KEY }}
+      AZURE_MAIN_USER: ${{ secrets.AZURE_MAIN_USER }}
+      AZURE_MAIN_HOST: ${{ secrets.AZURE_MAIN_HOST }}
