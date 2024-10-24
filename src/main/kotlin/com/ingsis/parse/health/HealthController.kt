@@ -52,4 +52,5 @@ class HealthController {
   companion object {
     private val startTime = System.currentTimeMillis()
   }
+
 }
