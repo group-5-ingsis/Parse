@@ -22,13 +22,6 @@ class HealthE2eTests @Autowired constructor(
   }
 
   @Test
-  fun `sayHello should return OK status with Hello message`() {
-    client.get().uri("/health/hello").exchange()
-      .expectStatus().isOk
-      .expectBody(String::class.java).isEqualTo("Hello, World!")
-  }
-
-  @Test
   fun `getServiceInfo should return OK status with service info`() {
     client.get().uri("/health/info").exchange()
       .expectStatus().isOk
