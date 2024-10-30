@@ -10,3 +10,9 @@ services:
       - .env
     ports:
       - ${APP_PORT}
+
+  redis:
+    container_name: "event-bus"
+    image: redis:6-alpine
+    ports:
+      - "6379:6379"

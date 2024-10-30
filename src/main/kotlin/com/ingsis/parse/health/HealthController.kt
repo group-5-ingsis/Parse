@@ -1,26 +1,16 @@
 package com.ingsis.parse.health
 
+import com.ingsis.parse.redis.producer.OperationResultProducer
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 @RestController
-@RequestMapping("/health")
-class HealthController {
-
-  @GetMapping
-  fun checkHealth(): ResponseEntity<String> {
-    return ResponseEntity("Service is running", HttpStatus.OK)
-  }
-
-  @GetMapping("/hello")
-  fun sayHello(): ResponseEntity<String> {
-    return ResponseEntity("Hello, World!!!!!", HttpStatus.OK)
-  }
+@RequestMapping()
+class HealthController(private val producer: OperationResultProducer) {
 
   @GetMapping("/info")
   fun getServiceInfo(): ResponseEntity<String> {
@@ -28,28 +18,8 @@ class HealthController {
     return ResponseEntity(serviceInfo, HttpStatus.OK)
   }
 
-  @GetMapping("/timestamp")
-  fun getCurrentTimestamp(): ResponseEntity<String> {
-    val currentTimestamp = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)
-    return ResponseEntity(currentTimestamp, HttpStatus.OK)
-  }
-
-  @GetMapping("/health/status")
-  fun getHealthStatus(): ResponseEntity<Map<String, Any>> {
-    val healthStatus = mapOf(
-      "status" to "UP",
-      "uptime" to "${System.currentTimeMillis() - startTime} ms",
-      "memory" to "${Runtime.getRuntime().totalMemory() / 1024} KB"
-    )
-    return ResponseEntity(healthStatus, HttpStatus.OK)
-  }
-
-  @GetMapping("/goodbye")
-  fun sayGoodbye(): ResponseEntity<String> {
-    return ResponseEntity("Goodbye, World!", HttpStatus.OK)
-  }
-
-  companion object {
-    private val startTime = System.currentTimeMillis()
+  @PostMapping("/redisTest")
+  suspend fun redisTest() {
+    producer.publishEvent("1", "format", "OK")
   }
 }
