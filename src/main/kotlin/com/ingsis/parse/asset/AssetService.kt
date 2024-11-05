@@ -25,6 +25,18 @@ class AssetService(private val restTemplate: RestTemplate) {
     }
   }
 
+  fun updateAsset(asset: Asset): String {
+    val headers = createHeaders(MediaType.APPLICATION_JSON)
+    val url = buildUrl(asset.container, asset.key)
+
+    return try {
+      val response = restTemplate.exchange(url, HttpMethod.PUT, HttpEntity(asset.content, headers), String::class.java)
+      response.body ?: "No Content"
+    } catch (e: RestClientException) {
+      handleException(e, "Error creating or updating asset")
+    }
+  }
+
   private fun createHeaders(contentType: MediaType? = null): HttpHeaders {
     return HttpHeaders().apply {
       contentType?.let { this.contentType = it }

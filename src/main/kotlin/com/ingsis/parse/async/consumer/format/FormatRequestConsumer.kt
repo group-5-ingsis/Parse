@@ -1,7 +1,9 @@
 package com.ingsis.parse.async.consumer.format
 
+import com.ingsis.parse.asset.Asset
 import com.ingsis.parse.asset.AssetService
 import com.ingsis.parse.async.JsonUtil
+import com.ingsis.parse.language.LanguageProvider
 import org.austral.ingsis.redis.RedisStreamConsumer
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -24,8 +26,23 @@ class FormatRequestConsumer @Autowired constructor(
     val snippet = JsonUtil.deserializeFromJson(streamValue)
     val container = snippet.container
     val key = snippet.key
+    val snippetLanguage = snippet.language
+    val snippetVersion = snippet.version
 
     val snippetContent = assetService.getAssetContent(container, key)
+    val language = LanguageProvider.getLanguages()[snippetLanguage]
+
+    // Falta como agarrar las reglas de formateo del usuario!
+    // val result = language?.format(snippetContent, snippetVersion)
+
+    val asset = Asset(
+      container,
+      key,
+      content = ""
+      // content = result
+    )
+
+    assetService.updateAsset(asset)
   }
 
   override fun options(): StreamReceiver.StreamReceiverOptions<String, ObjectRecord<String, String>> {
