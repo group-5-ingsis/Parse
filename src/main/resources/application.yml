@@ -1,13 +1,16 @@
 spring:
   application:
     name: "Parse Service"
+  data:
+    redis:
+      host: localhost
+      port: ${REDIS_HOST}
 
 stream:
   key: ${STREAM_KEY}
 
 groups:
-  product: ${GROUP_ID}
-
+  format: ${FORMAT_ID}
 
 server:
   port: ${SERVER_PORT}
