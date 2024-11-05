@@ -1,10 +1,10 @@
-package com.ingsis.parse.redis
+package com.ingsis.parse.async
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.ingsis.parse.redis.producer.OperationResult
+import com.ingsis.parse.async.producer.OperationResult
 
 object JsonUtil {
   private val objectMapper: ObjectMapper = jacksonObjectMapper()

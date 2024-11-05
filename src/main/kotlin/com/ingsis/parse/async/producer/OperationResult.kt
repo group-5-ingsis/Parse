@@ -1,4 +1,4 @@
-package com.ingsis.parse.redis.producer
+package com.ingsis.parse.async.producer
 
 data class OperationResult(
   var snippetId: String,

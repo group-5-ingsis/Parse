@@ -1,6 +1,6 @@
-package com.ingsis.parse.redis.producer
+package com.ingsis.parse.async.producer
 
-import com.ingsis.parse.redis.JsonUtil
+import com.ingsis.parse.async.JsonUtil
 import kotlinx.coroutines.reactive.awaitSingle
 import org.austral.ingsis.redis.RedisStreamProducer
 import org.springframework.beans.factory.annotation.Autowired

@@ -5,8 +5,6 @@ import org.springframework.stereotype.Service
 @Service
 class ParseService {
 
-  // TODO check what arguments to pass
-
   fun formatSnippet(snippetId: String) { }
 
   fun lintSnippet(snippetId: String) { }

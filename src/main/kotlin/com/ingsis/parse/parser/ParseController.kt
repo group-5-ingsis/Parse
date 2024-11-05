@@ -8,18 +8,18 @@ import org.springframework.web.bind.annotation.RestController
 @RestController("/parse")
 class ParseController(private val parseService: ParseService) {
 
-  @PostMapping("/{snippetId}/format")
-  fun formatSnippet(@PathVariable("snippetId") snippetId: String): ResponseEntity<String> {
+  @PostMapping("/format/{snippetId}")
+  fun formatSnippet(@PathVariable snippetId: String): String {
     TODO("NOT YET IMPLEMENTED")
   }
 
-  @PostMapping("/all/format")
+  @PostMapping("/snippets/format/all")
   fun formatAllSnippets(): ResponseEntity<String> {
     TODO("NOT YET IMPLEMENTED")
   }
 
-  @PostMapping("/{snippetId}/lint")
-  fun lintSnippet(@PathVariable("snippetId") snippetId: String): ResponseEntity<String> {
+  @PostMapping("/lint/{snippetId}")
+  fun lintSnippet(@PathVariable snippetId: String): ResponseEntity<String> {
     TODO("NOT YET IMPLEMENTED")
   }
 
