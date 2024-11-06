@@ -3,6 +3,9 @@ package com.ingsis.parse.async.validation
 import com.ingsis.parse.asset.AssetService
 import com.ingsis.parse.async.JsonUtil
 import com.ingsis.parse.language.LanguageProvider
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.austral.ingsis.redis.RedisStreamConsumer
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -16,12 +19,18 @@ class ValidationRequestConsumer @Autowired constructor(
   redis: ReactiveRedisTemplate<String, String>,
   @Value("\${stream.validate}") streamKey: String,
   @Value("\${groups.parser}") groupId: String,
-  private val assetService: AssetService
+  private val assetService: AssetService,
+  private val validationRequestProducer: ValidationRequestProducer
 ) : RedisStreamConsumer<String>(streamKey, groupId, redis) {
 
   override fun onMessage(record: ObjectRecord<String, String>) {
-    val streamValue = record.value
+    CoroutineScope(Dispatchers.IO).launch {
+      processMessage(record)
+    }
+  }
 
+  private suspend fun processMessage(record: ObjectRecord<String, String>) {
+    val streamValue = record.value
     val snippet = JsonUtil.deserializeFormatRequest(streamValue)
 
     val container = snippet.container
@@ -32,9 +41,13 @@ class ValidationRequestConsumer @Autowired constructor(
     val snippetContent = assetService.getAssetContent(container, key)
     val language = LanguageProvider.getLanguages()[snippetLanguage]
 
-    // Ver como pasarle inputs
-    val result = language?.validate(snippetContent, snippetVersion, "null")
-    if (result == false) {
+    val isValid = language?.validate(snippetContent, snippetVersion, "null")
+    if (isValid == false) {
+      val result = SnippetValidationResult(
+        snippetId = key,
+        result = "invalid"
+      )
+      validationRequestProducer.publishEvent(result)
     }
   }
 
