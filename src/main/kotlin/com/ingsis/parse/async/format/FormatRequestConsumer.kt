@@ -1,4 +1,4 @@
-package com.ingsis.parse.async.consumer.format
+package com.ingsis.parse.async.format
 
 import com.ingsis.parse.asset.Asset
 import com.ingsis.parse.asset.AssetService
@@ -15,15 +15,15 @@ import org.springframework.stereotype.Component
 @Component
 class FormatRequestConsumer @Autowired constructor(
   redis: ReactiveRedisTemplate<String, String>,
-  @Value("\${stream.key}") streamKey: String,
-  @Value("\${groups.format}") groupId: String,
+  @Value("\${stream.format}") streamKey: String,
+  @Value("\${groups.parser}") groupId: String,
   private val assetService: AssetService
 ) : RedisStreamConsumer<String>(streamKey, groupId, redis) {
 
   override fun onMessage(record: ObjectRecord<String, String>) {
     val streamValue = record.value
 
-    val snippet = JsonUtil.deserializeFromJson(streamValue)
+    val snippet = JsonUtil.deserializeFormatRequest(streamValue)
     val container = snippet.container
     val key = snippet.key
     val snippetLanguage = snippet.language

@@ -16,7 +16,15 @@ object JsonUtil {
     }
   }
 
-  fun deserializeFromJson(json: String): Snippet {
+  fun deserializeFormatRequest(json: String): Snippet {
+    return try {
+      objectMapper.readValue(json)
+    } catch (e: JsonProcessingException) {
+      throw RuntimeException("Failed to deserialize JSON to object", e)
+    }
+  }
+
+  fun deserializeValidationRequest(json: String): SnippetValidationRequest {
     return try {
       objectMapper.readValue(json)
     } catch (e: JsonProcessingException) {

@@ -12,7 +12,7 @@ object PrintScript : Language {
     src: String,
     version: String,
     rules: FormatRules
-  ) {
+  ): String {
     val printScriptFormattingRules = RulesAdapter.toPrintScript(rules)
 
     val output = StringBuilder()
@@ -32,5 +32,26 @@ object PrintScript : Language {
         System.err.println("Error closing writer: ${e.message}")
       }
     }
+    return output.toString()
+  }
+
+  override fun validate(src: String, version: String, input: String): Boolean {
+    var valid = true
+
+    try {
+      val tokens = Lexer(src, version)
+      Parser(tokens, version, input)
+    } catch (e: IOException) {
+      System.err.println("I/O Error: ${e.message}")
+    } catch (e: Exception) {
+      valid = false
+      System.err.println("Error: ${e.message}")
+    } finally {
+      try {
+      } catch (e: IOException) {
+        System.err.println("Error closing writer: ${e.message}")
+      }
+    }
+    return valid
   }
 }
