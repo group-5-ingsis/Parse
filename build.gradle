@@ -56,7 +56,6 @@ dependencies {
     implementation 'io.projectreactor.kotlin:reactor-kotlin-extensions'
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.17.1'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
-    implementation 'io.github.cdimascio:dotenv-java:3.0.0'
 
     implementation 'com.ingsis:lexer:1.1.0'
     implementation 'com.ingsis:parser:1.1.0'
@@ -64,18 +63,16 @@ dependencies {
     implementation 'com.ingsis:linter:1.1.0'
     implementation 'com.ingsis:interpreter:1.1.0'
 
-
-    annotationProcessor('org.projectlombok:lombok:1.18.34')
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
-    testImplementation("org.postgresql:postgresql")
+    testImplementation 'org.postgresql:postgresql'
     testImplementation 'io.projectreactor:reactor-test'
-    testImplementation('org.mockito.kotlin:mockito-kotlin:5.4.0')
-
+    testImplementation 'org.mockito.kotlin:mockito-kotlin:5.4.0'
     testImplementation 'org.amshove.kluent:kluent:1.73'
-    testImplementation("com.h2database:h2")
+    testImplementation 'com.h2database:h2"'
 
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
