@@ -1,6 +1,5 @@
 package com.ingsis.parse.language
 
-import com.ingsis.parse.rules.FormatRules
 import com.ingsis.parse.rules.RulesAdapter
 import formatter.Formatter
 import lexer.Lexer
@@ -11,7 +10,7 @@ object PrintScript : Language {
   override fun format(
     src: String,
     version: String,
-    rules: FormatRules
+    rules: String
   ): String {
     val printScriptFormattingRules = RulesAdapter.toPrintScript(rules)
 
