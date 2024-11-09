@@ -24,22 +24,24 @@ class FormatRequestConsumer @Autowired constructor(
     val streamValue = record.value
 
     val snippet = JsonUtil.deserializeFormatRequest(streamValue)
-    val container = snippet.container
-    val key = snippet.key
+    val author = snippet.container
+    val snippetName = snippet.key
     val snippetLanguage = snippet.language
     val snippetVersion = snippet.version
 
-    val snippetContent = assetService.getAssetContent(container, key)
+    val snippetContent = assetService.getAssetContent(author, snippetName)
+
+    // Las reglas van a estar en formato json
+    val formattingRules = assetService.getAssetContent(author, "FormattingRules")
+
     val language = LanguageProvider.getLanguages()[snippetLanguage]
 
-    // Falta como agarrar las reglas de formateo del usuario!
-    // val result = language?.format(snippetContent, snippetVersion)
+    val result = language?.format(snippetContent, snippetVersion, formattingRules) ?: ""
 
     val asset = Asset(
-      container,
-      key,
-      content = ""
-      // content = result
+      author,
+      snippetName,
+      content = result
     )
 
     assetService.updateAsset(asset)

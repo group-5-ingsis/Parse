@@ -45,6 +45,8 @@ dependencies {
 
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-core:1.7.1'
     implementation 'org.austral.ingsis:redis-streams-flux:0.1.13'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
