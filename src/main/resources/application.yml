@@ -14,4 +14,4 @@ groups:
   parser: ${GROUP_ID}
 
 server:
-  port: ${PARSE_SEVER_PORT}
+  port: ${SEVER_PORT}
