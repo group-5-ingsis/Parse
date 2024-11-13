@@ -3,7 +3,9 @@ FROM gradle:8.10.1-jdk21 AS build
 COPY . /home/gradle/src
 WORKDIR /home/gradle/src
 
-RUN ./gradlew assemble --no-daemon
+RUN --mount=type=secret,id=USERNAME,required,env=USERNAME \
+    --mount=type=secret,id=TOKEN,required,env=TOKEN \
+    ./gradlew assemble --no-daemon
 
 FROM amazoncorretto:21-alpine
 
