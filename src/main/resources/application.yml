@@ -10,6 +10,8 @@ stream:
   format: ${STREAM_KEY_FORMAT}
   format-response: "abc"
   validate: ${STREAM_KEY_VALIDATE}
+  lint-request: "12345"
+  lint-response: "54321"
 
 groups:
   parser: ${GROUP_ID}

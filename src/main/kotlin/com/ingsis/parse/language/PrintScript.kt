@@ -1,5 +1,6 @@
 package com.ingsis.parse.language
 
+import com.ingsis.parse.rules.LintingRules
 import formatter.Formatter
 import lexer.Lexer
 import parser.Parser
@@ -50,5 +51,13 @@ object PrintScript : Language {
       }
     }
     return valid
+  }
+
+  override fun lint(
+    src: String,
+    version: String,
+    rules: LintingRules
+  ): String {
+    TODO("Not yet implemented")
   }
 }
