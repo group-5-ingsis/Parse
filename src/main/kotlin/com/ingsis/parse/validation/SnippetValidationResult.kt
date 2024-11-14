@@ -1,4 +1,4 @@
-package com.ingsis.parse.async.validation
+package com.ingsis.parse.validation
 
 data class SnippetValidationResult(
   val snippetId: String,

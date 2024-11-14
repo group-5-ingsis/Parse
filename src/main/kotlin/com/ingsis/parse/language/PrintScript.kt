@@ -1,25 +1,25 @@
 package com.ingsis.parse.language
 
-import com.ingsis.parse.rules.RulesAdapter
+import com.ingsis.parse.rules.LintingRules
 import formatter.Formatter
 import lexer.Lexer
+import linter.Linter
 import parser.Parser
+import rules.FormattingRules
 import java.io.IOException
 
 object PrintScript : Language {
   override fun format(
     src: String,
     version: String,
-    rules: String
+    rules: FormattingRules
   ): String {
-    val printScriptFormattingRules = RulesAdapter.toPrintScript(rules)
-
     val output = StringBuilder()
 
     try {
       val tokens = Lexer(src, version)
       val asts = Parser(tokens, version, null)
-      val formattedFile = Formatter.format(asts, printScriptFormattingRules, version)
+      val formattedFile = Formatter.format(asts, rules, version)
       output.append(formattedFile)
     } catch (e: IOException) {
       System.err.println("I/O Error: ${e.message}")
@@ -52,5 +52,31 @@ object PrintScript : Language {
       }
     }
     return valid
+  }
+
+  override fun lint(
+    src: String,
+    version: String,
+    rules: LintingRules
+  ): List<String> {
+    val tokens = Lexer(src, version)
+
+    val errors = mutableListOf<String>()
+    val asts = Parser(tokens, version, null)
+
+    val linter = Linter(rules)
+
+    while (asts.hasNext()) {
+      try {
+        val result = linter.lint(asts)
+        if (!result.isValid()) {
+          errors.add(result.getMessage())
+        }
+      } catch (e: Exception) {
+        errors.add("Error during linting: ${e.message}")
+      }
+    }
+
+    return errors
   }
 }

@@ -1,9 +1,9 @@
-package com.ingsis.parse.async.format
+package com.ingsis.parse.format
 
-import com.ingsis.parse.asset.Asset
 import com.ingsis.parse.asset.AssetService
 import com.ingsis.parse.async.JsonUtil
-import com.ingsis.parse.language.LanguageProvider
+import com.ingsis.parse.language.PrintScript
+import kotlinx.coroutines.runBlocking
 import org.austral.ingsis.redis.RedisStreamConsumer
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -15,36 +15,21 @@ import org.springframework.stereotype.Component
 @Component
 class FormatRequestConsumer @Autowired constructor(
   redis: ReactiveRedisTemplate<String, String>,
-  @Value("\${stream.format}") streamKey: String,
+  @Value("\${stream.format}") streamRequestKey: String,
   @Value("\${groups.parser}") groupId: String,
+  private val formattedSnippetProducer: FormattedSnippetProducer,
   private val assetService: AssetService
-) : RedisStreamConsumer<String>(streamKey, groupId, redis) {
+) : RedisStreamConsumer<String>(streamRequestKey, groupId, redis) {
 
   override fun onMessage(record: ObjectRecord<String, String>) {
-    val streamValue = record.value
+    val formatRequest = JsonUtil.deserializeFormatRequest(record.value)
+    val formattingRules = JsonUtil.deserializeFormattingRules(assetService.getAssetContent(formatRequest.author, "FormattingRules"))
+    val result = PrintScript.format(formatRequest.snippet, "1.1", formattingRules)
 
-    val snippet = JsonUtil.deserializeFormatRequest(streamValue)
-    val author = snippet.container
-    val snippetName = snippet.key
-    val snippetLanguage = snippet.language
-    val snippetVersion = snippet.version
-
-    val snippetContent = assetService.getAssetContent(author, snippetName)
-
-    // Las reglas van a estar en formato json
-    val formattingRules = assetService.getAssetContent(author, "FormattingRules")
-
-    val language = LanguageProvider.getLanguages()[snippetLanguage]
-
-    val result = language?.format(snippetContent, snippetVersion, formattingRules) ?: ""
-
-    val asset = Asset(
-      author,
-      snippetName,
-      content = result
-    )
-
-    assetService.updateAsset(asset)
+    val response = FormatResponse(formatRequest.requestId, result)
+    runBlocking {
+      formattedSnippetProducer.publishEvent(JsonUtil.serializeFormatResponse(response))
+    }
   }
 
   override fun options(): StreamReceiver.StreamReceiverOptions<String, ObjectRecord<String, String>> {
