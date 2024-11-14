@@ -67,9 +67,13 @@ object PrintScript : Language {
     val linter = Linter(rules)
 
     while (asts.hasNext()) {
-      val result = linter.lint(asts)
-      if (!result.isValid()) {
-        errors.add(result.getMessage())
+      try {
+        val result = linter.lint(asts)
+        if (!result.isValid()) {
+          errors.add(result.getMessage())
+        }
+      } catch (e: Exception) {
+        errors.add("Error during linting: ${e.message}")
       }
     }
 

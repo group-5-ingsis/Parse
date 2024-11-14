@@ -2,7 +2,6 @@ package com.ingsis.parse.lint
 
 import com.ingsis.parse.asset.AssetService
 import com.ingsis.parse.async.JsonUtil
-import com.ingsis.parse.format.FormattedSnippetProducer
 import com.ingsis.parse.language.PrintScript
 import kotlinx.coroutines.runBlocking
 import org.austral.ingsis.redis.RedisStreamConsumer
@@ -18,7 +17,7 @@ class LintRequestConsumer @Autowired constructor(
   redis: ReactiveRedisTemplate<String, String>,
   @Value("\${stream.lint-request}") streamRequestKey: String,
   @Value("\${groups.parser}") groupId: String,
-  private val formattedSnippetProducer: FormattedSnippetProducer,
+  private val linterResponseProducer: LintResponseProducer,
   private val assetService: AssetService
 ) : RedisStreamConsumer<String>(streamRequestKey, groupId, redis) {
 
@@ -27,9 +26,14 @@ class LintRequestConsumer @Autowired constructor(
     val lintingRules = JsonUtil.deserializeLintingRules(assetService.getAssetContent(formatRequest.author, "LintingRules"))
     val result = PrintScript.lint(formatRequest.snippet, "1.1", lintingRules)
 
-    val response = LintResponse(formatRequest.requestId, result)
+    val response = if (result.isEmpty()) {
+      LintResponse(formatRequest.requestId, "compliant")
+    } else {
+      LintResponse(formatRequest.requestId, "non-compliant")
+    }
+
     runBlocking {
-      formattedSnippetProducer.publishEvent(JsonUtil.serializeLintResponse(response))
+      linterResponseProducer.publishEvent(JsonUtil.serializeLintResponse(response))
     }
   }
 
