@@ -8,6 +8,7 @@ spring:
 
 stream:
   format: ${STREAM_KEY_FORMAT}
+  format-response: "abc"
   validate: ${STREAM_KEY_VALIDATE}
 
 groups:

@@ -1,4 +1,4 @@
-package com.ingsis.parse.async.validation
+package com.ingsis.parse.validation
 
 import com.ingsis.parse.async.JsonUtil
 import kotlinx.coroutines.reactive.awaitSingle
