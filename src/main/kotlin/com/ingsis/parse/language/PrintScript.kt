@@ -3,6 +3,7 @@ package com.ingsis.parse.language
 import com.ingsis.parse.rules.LintingRules
 import formatter.Formatter
 import lexer.Lexer
+import linter.Linter
 import parser.Parser
 import rules.FormattingRules
 import java.io.IOException
@@ -57,7 +58,21 @@ object PrintScript : Language {
     src: String,
     version: String,
     rules: LintingRules
-  ): String {
-    TODO("Not yet implemented")
+  ): List<String> {
+    val tokens = Lexer(src, version)
+
+    val errors = mutableListOf<String>()
+    val asts = Parser(tokens, version, null)
+
+    val linter = Linter(rules)
+
+    while (asts.hasNext()) {
+      val result = linter.lint(asts)
+      if (!result.isValid()) {
+        errors.add(result.getMessage())
+      }
+    }
+
+    return errors
   }
 }

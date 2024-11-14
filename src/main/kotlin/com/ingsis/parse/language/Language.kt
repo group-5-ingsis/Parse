@@ -9,5 +9,5 @@ interface Language {
 
   fun validate(src: String, version: String, input: String): Boolean
 
-  fun lint(src: String, version: String, rules: LintingRules): String
+  fun lint(src: String, version: String, rules: LintingRules): List<String>
 }
