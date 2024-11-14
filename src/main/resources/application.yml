@@ -17,4 +17,9 @@ groups:
   parser: ${GROUP_ID}
 
 server:
-  port: ${SEVER_PORT}
+  port: ${SERVER_PORT}  # Corrected typo
+
+logging:
+  level:
+    root: INFO
+    com.ingsis.parse: INFO  # Adjust to DEBUG if needed for troubleshooting
