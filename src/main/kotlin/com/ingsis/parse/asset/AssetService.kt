@@ -1,5 +1,7 @@
 package com.ingsis.parse.asset
 
+import com.ingsis.parse.async.JsonUtil
+import com.ingsis.parse.rules.RuleManager
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -25,7 +27,7 @@ class AssetService(private val restTemplate: RestTemplate) {
     }
   }
 
-  fun updateAsset(asset: Asset): String {
+  fun createOrUpdateAsset(asset: Asset): String {
     val headers = createHeaders(MediaType.APPLICATION_JSON)
     val url = buildUrl(asset.container, asset.key)
 
@@ -50,5 +52,24 @@ class AssetService(private val restTemplate: RestTemplate) {
 
   private fun handleException(e: RestClientException, defaultMessage: String): String {
     return "$defaultMessage: ${e.message ?: "Unknown error"}"
+  }
+
+  fun getFormattingRules(userId: String): String {
+    val rulesJson = getAssetContent(userId, "FormattingRules")
+
+    return if (rulesJson == "Error retrieving asset content: 404 Not Found: [no body]") {
+      val defaultFormattingRules = RuleManager.getDefaultFormattingRules()
+
+      val asset = Asset(
+        container = userId,
+        key = "FormattingRules",
+        content = JsonUtil.serializeFormattingRules(defaultFormattingRules)
+      )
+      createOrUpdateAsset(asset)
+
+      getAssetContent(userId, "FormattingRules")
+    } else {
+      rulesJson
+    }
   }
 }

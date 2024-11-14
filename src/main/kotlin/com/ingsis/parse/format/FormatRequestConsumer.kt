@@ -23,7 +23,7 @@ class FormatRequestConsumer @Autowired constructor(
 
   override fun onMessage(record: ObjectRecord<String, String>) {
     val formatRequest = JsonUtil.deserializeFormatRequest(record.value)
-    val formattingRules = assetService.getAssetContent(formatRequest.author, "FormattingRules")
+    val formattingRules = JsonUtil.deserializeFormattingRules(assetService.getAssetContent(formatRequest.author, "FormattingRules"))
     val result = PrintScript.format(formatRequest.snippet, "1.1", formattingRules)
 
     val response = FormatResponse(formatRequest.requestId, result)
