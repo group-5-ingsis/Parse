@@ -11,7 +11,7 @@ import kotlin.test.Test
 @ActiveProfiles("test")
 @AutoConfigureWebTestClient
 class HealthE2eTests @Autowired constructor(
-  val client: WebTestClient
+  private val client: WebTestClient
 ) {
 
   @Test

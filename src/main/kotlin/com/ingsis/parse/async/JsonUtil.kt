@@ -9,19 +9,10 @@ import com.ingsis.parse.format.FormatResponse
 import com.ingsis.parse.lint.LintRequest
 import com.ingsis.parse.lint.LintResponse
 import com.ingsis.parse.rules.LintingRules
-import com.ingsis.parse.validation.SnippetValidationResult
 import rules.FormattingRules
 
 object JsonUtil {
   private val objectMapper: ObjectMapper = jacksonObjectMapper()
-
-  fun serializeValidationRequest(snippet: SnippetValidationResult): String {
-    return try {
-      objectMapper.writeValueAsString(snippet)
-    } catch (e: JsonProcessingException) {
-      throw RuntimeException("Failed to serialize object to JSON", e)
-    }
-  }
 
   fun serializeFormatResponse(formatResponse: FormatResponse): String {
     return try {
