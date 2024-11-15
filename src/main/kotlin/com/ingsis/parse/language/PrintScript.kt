@@ -1,6 +1,7 @@
 package com.ingsis.parse.language
 
-import com.ingsis.parse.rules.LintingRules
+import com.ingsis.parse.rules.LintRules
+import com.ingsis.parse.rules.RuleManager
 import formatter.Formatter
 import lexer.Lexer
 import linter.Linter
@@ -34,37 +35,18 @@ object PrintScript : Language {
     return output.toString()
   }
 
-  override fun validate(src: String, version: String, input: String): Boolean {
-    var valid = true
-
-    try {
-      val tokens = Lexer(src, version)
-      Parser(tokens, version, input)
-    } catch (e: IOException) {
-      System.err.println("I/O Error: ${e.message}")
-    } catch (e: Exception) {
-      valid = false
-      System.err.println("Error: ${e.message}")
-    } finally {
-      try {
-      } catch (e: IOException) {
-        System.err.println("Error closing writer: ${e.message}")
-      }
-    }
-    return valid
-  }
-
   override fun lint(
     src: String,
     version: String,
-    rules: LintingRules
+    rules: LintRules
   ): List<String> {
+    val printScriptRules = RuleManager.adaptPrintScriptLintRules(rules)
     val tokens = Lexer(src, version)
 
     val errors = mutableListOf<String>()
     val asts = Parser(tokens, version, null)
 
-    val linter = Linter(rules)
+    val linter = Linter(printScriptRules)
 
     while (asts.hasNext()) {
       try {

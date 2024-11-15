@@ -1,11 +1,14 @@
 package com.ingsis.parse.rules
 
+import com.ingsis.parse.asset.Asset
+import com.ingsis.parse.asset.AssetService
+import com.ingsis.parse.async.JsonUtil
 import rules.FormattingRules
 
 object RuleManager {
 
   fun getDefaultFormattingRules(): FormattingRules {
-    val defaultFormattingRules = FormattingRules(
+    return FormattingRules(
       spaceBeforeColon = false,
       spaceAfterColon = false,
       spaceAroundAssignment = false,
@@ -14,18 +17,44 @@ object RuleManager {
       ifBraceSameLine = false,
       singleSpaceSeparation = false
     )
-    return defaultFormattingRules
   }
 
-  fun convertToRuleList(formattingRules: FormattingRules): List<Rule> {
-    return listOf(
-      Rule(id = "1", name = "spaceBeforeColon", isActive = formattingRules.spaceBeforeColon, value = null),
-      Rule(id = "2", name = "spaceAfterColon", isActive = formattingRules.spaceAfterColon, value = null),
-      Rule(id = "3", name = "spaceAroundAssignment", isActive = formattingRules.spaceAroundAssignment, value = null),
-      Rule(id = "4", name = "newlineAfterPrintln", isActive = true, value = formattingRules.newlineAfterPrintln),
-      Rule(id = "5", name = "blockIndentation", isActive = true, value = formattingRules.blockIndentation),
-      Rule(id = "6", name = "ifBraceSameLine", isActive = formattingRules.ifBraceSameLine, value = null),
-      Rule(id = "7", name = "singleSpaceSeparation", isActive = formattingRules.singleSpaceSeparation, value = null)
+  private fun getDefaultLintingRules(): LintingRules {
+    return LintingRules(
+      identifierNamingConvention = "snake-case",
+      printlnExpressionAllowed = false,
+      readInputExpressionAllowed = false
+    )
+  }
+
+  fun getLintingRules(username: String, assetService: AssetService): String {
+    val lintingRules = "LintingRules"
+    val rulesJson = assetService.getAssetContent(username, lintingRules)
+    return if (rulesJson == "Error retrieving asset content: 404 Not Found: [no body]") {
+      val defaultRules = getDefaultLintingRules()
+      saveRules(username, lintingRules, defaultRules, assetService)
+      assetService.getAssetContent(username, lintingRules)
+    } else {
+      rulesJson
+    }
+  }
+
+  private fun saveRules(username: String, key: String, rules: Any, assetService: AssetService) {
+    val rulesAsJson = when (rules) {
+      is FormatRules -> JsonUtil.serializeRules(rules)
+      is LintingRules -> JsonUtil.serializeRules(rules)
+      else -> throw IllegalArgumentException("Unsupported rules type")
+    }
+    val asset = Asset(container = username, key = key, content = rulesAsJson)
+    assetService.createOrUpdateAsset(asset)
+  }
+
+  fun adaptPrintScriptLintRules(rules: LintRules): LintingRules {
+    return LintingRules(
+      version = "1.1",
+      identifierNamingConvention = rules.identifierNamingConvention,
+      printlnExpressionAllowed = rules.printlnExpressionAllowed,
+      readInputExpressionAllowed = rules.readInputExpressionAllowed
     )
   }
 }

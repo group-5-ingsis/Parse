@@ -1,13 +1,11 @@
 package com.ingsis.parse.language
 
-import com.ingsis.parse.rules.LintingRules
+import com.ingsis.parse.rules.LintRules
 import rules.FormattingRules
 
 interface Language {
 
   fun format(src: String, version: String, rules: FormattingRules): String
 
-  fun validate(src: String, version: String, input: String): Boolean
-
-  fun lint(src: String, version: String, rules: LintingRules): List<String>
+  fun lint(src: String, version: String, rules: LintRules): List<String>
 }

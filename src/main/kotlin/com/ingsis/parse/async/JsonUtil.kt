@@ -8,7 +8,8 @@ import com.ingsis.parse.format.FormatRequest
 import com.ingsis.parse.format.FormatResponse
 import com.ingsis.parse.lint.LintRequest
 import com.ingsis.parse.lint.LintResponse
-import com.ingsis.parse.rules.LintingRules
+import com.ingsis.parse.rules.LintRules
+import com.ingsis.parse.rules.Rule
 import rules.FormattingRules
 
 object JsonUtil {
@@ -62,11 +63,19 @@ object JsonUtil {
     }
   }
 
-  fun deserializeLintingRules(json: String): LintingRules {
+  fun deserializeLintingRules(json: String): LintRules {
     return try {
       objectMapper.readValue(json)
     } catch (e: JsonProcessingException) {
       throw RuntimeException("Failed to deserialize JSON to object", e)
+    }
+  }
+
+  fun serializeRules(rules: Rule): String {
+    return try {
+      objectMapper.writeValueAsString(rules)
+    } catch (e: JsonProcessingException) {
+      throw RuntimeException("Failed to serialize object to JSON", e)
     }
   }
 }

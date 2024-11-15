@@ -3,6 +3,7 @@ package com.ingsis.parse.lint
 import com.ingsis.parse.asset.AssetService
 import com.ingsis.parse.async.JsonUtil
 import com.ingsis.parse.language.PrintScript
+import com.ingsis.parse.rules.RuleManager
 import kotlinx.coroutines.runBlocking
 import org.austral.ingsis.redis.RedisStreamConsumer
 import org.slf4j.LoggerFactory
@@ -28,9 +29,9 @@ class LintRequestConsumer @Autowired constructor(
     try {
       val formatRequest = JsonUtil.deserializeLintRequest(record.value)
 
-      val assetContent = assetService.getAssetContent(formatRequest.author, "LintingRules")
+      val ruleJson = RuleManager.getLintingRules(formatRequest.author, assetService)
 
-      val lintingRules = JsonUtil.deserializeLintingRules(assetContent)
+      val lintingRules = JsonUtil.deserializeLintingRules(ruleJson)
 
       val result = PrintScript.lint(formatRequest.snippet, "1.1", lintingRules)
       logger.info("Lint result is: {}", result)
