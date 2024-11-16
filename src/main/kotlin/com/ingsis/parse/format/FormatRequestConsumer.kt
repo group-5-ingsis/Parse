@@ -18,7 +18,7 @@ class FormatRequestConsumer @Autowired constructor(
   redis: ReactiveRedisTemplate<String, String>,
   @Value("\${stream.format}") streamRequestKey: String,
   @Value("\${groups.parser}") groupId: String,
-  private val formattedSnippetProducer: FormattedSnippetProducer,
+  private val formatResponseProducer: FormatResponseProducer,
   private val assetService: AssetService
 ) : RedisStreamConsumer<String>(streamRequestKey, groupId, redis) {
 
@@ -33,7 +33,7 @@ class FormatRequestConsumer @Autowired constructor(
 
     val response = FormatResponse(formatRequest.requestId, result)
     runBlocking {
-      formattedSnippetProducer.publishEvent(JsonUtil.serializeFormatResponse(response))
+      formatResponseProducer.publishEvent(JsonUtil.serializeFormatResponse(response))
       logger.info("Published format result with request: ${formatRequest.requestId}")
     }
   }
