@@ -19,8 +19,8 @@ object RuleManager {
     )
   }
 
-  private fun getDefaultLintingRules(): LintingRules {
-    return LintingRules(
+  private fun getDefaultLintingRules(): LintRules {
+    return LintRules(
       identifierNamingConvention = "snake-case",
       printlnExpressionAllowed = false,
       readInputExpressionAllowed = false
@@ -42,7 +42,7 @@ object RuleManager {
   private fun saveRules(username: String, key: String, rules: Any, assetService: AssetService) {
     val rulesAsJson = when (rules) {
       is FormatRules -> JsonUtil.serializeRules(rules)
-      is LintingRules -> JsonUtil.serializeRules(rules)
+      is LintRules -> JsonUtil.serializeRules(rules)
       else -> throw IllegalArgumentException("Unsupported rules type")
     }
     val asset = Asset(container = username, key = key, content = rulesAsJson)
