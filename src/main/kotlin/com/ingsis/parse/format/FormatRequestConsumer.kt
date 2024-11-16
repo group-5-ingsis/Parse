@@ -5,6 +5,7 @@ import com.ingsis.parse.async.JsonUtil
 import com.ingsis.parse.language.PrintScript
 import kotlinx.coroutines.runBlocking
 import org.austral.ingsis.redis.RedisStreamConsumer
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.redis.connection.stream.ObjectRecord
@@ -21,14 +22,19 @@ class FormatRequestConsumer @Autowired constructor(
   private val assetService: AssetService
 ) : RedisStreamConsumer<String>(streamRequestKey, groupId, redis) {
 
+  private val logger = LoggerFactory.getLogger(FormatRequestConsumer::class.java)
+
   override fun onMessage(record: ObjectRecord<String, String>) {
     val formatRequest = JsonUtil.deserializeFormatRequest(record.value)
+    logger.info("Received request to format snippet with request: ${formatRequest.requestId}")
     val formattingRules = JsonUtil.deserializeFormattingRules(assetService.getAssetContent(formatRequest.author, "FormattingRules"))
     val result = PrintScript.format(formatRequest.snippet, "1.1", formattingRules)
+    logger.info("Finished formatting snippet with request: ${formatRequest.requestId}")
 
     val response = FormatResponse(formatRequest.requestId, result)
     runBlocking {
       formattedSnippetProducer.publishEvent(JsonUtil.serializeFormatResponse(response))
+      logger.info("Published format result with request: ${formatRequest.requestId}")
     }
   }
 
