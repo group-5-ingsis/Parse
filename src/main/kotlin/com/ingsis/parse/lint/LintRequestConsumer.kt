@@ -26,27 +26,23 @@ class LintRequestConsumer @Autowired constructor(
   private val logger = LoggerFactory.getLogger(RedisStreamConsumer::class.java)
 
   override fun onMessage(record: ObjectRecord<String, String>) {
-    try {
-      val formatRequest = JsonUtil.deserializeLintRequest(record.value)
+    val formatRequest = JsonUtil.deserializeLintRequest(record.value)
+    logger.info("Received request to lint snippet with request: ${formatRequest.requestId}")
+    val ruleJson = RuleManager.getLintingRules(formatRequest.author, assetService)
 
-      val ruleJson = RuleManager.getLintingRules(formatRequest.author, assetService)
+    val lintingRules = JsonUtil.deserializeLintingRules(ruleJson)
 
-      val lintingRules = JsonUtil.deserializeLintingRules(ruleJson)
+    val result = PrintScript.lint(formatRequest.snippet, "1.1", lintingRules)
+    logger.info("Lint result is: {}", result)
 
-      val result = PrintScript.lint(formatRequest.snippet, "1.1", lintingRules)
-      logger.info("Lint result is: {}", result)
+    val response = if (result.isEmpty()) {
+      LintResponse(formatRequest.requestId, "compliant")
+    } else {
+      LintResponse(formatRequest.requestId, "non-compliant")
+    }
 
-      val response = if (result.isEmpty()) {
-        LintResponse(formatRequest.requestId, "compliant")
-      } else {
-        LintResponse(formatRequest.requestId, "non-compliant")
-      }
-
-      runBlocking {
-        linterResponseProducer.publishEvent(JsonUtil.serializeLintResponse(response))
-      }
-    } catch (e: Exception) {
-      logger.error("Error processing message: ${e.message}", e)
+    runBlocking {
+      linterResponseProducer.publishEvent(JsonUtil.serializeLintResponse(response))
     }
   }
 
