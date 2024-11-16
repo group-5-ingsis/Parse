@@ -50,8 +50,6 @@ class LintRequestConsumer @Autowired constructor(
         LintResponse(formatRequest.requestId, "non-compliant")
       }
 
-      logger.info("Sending lint response for requestId ${formatRequest.requestId} with status: ${response.status}")
-
       runBlocking {
         linterResponseProducer.publishEvent(JsonUtil.serializeLintResponse(response))
         logger.info("Published lint response to producer for requestId ${formatRequest.requestId}")

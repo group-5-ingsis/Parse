@@ -14,8 +14,7 @@ object RuleManager {
       spaceAroundAssignment = false,
       newlineAfterPrintln = 0,
       blockIndentation = 0,
-      ifBraceSameLine = false,
-      singleSpaceSeparation = false
+      ifBraceSameLine = false
     )
   }
 
@@ -78,7 +77,7 @@ object RuleManager {
       newlineAfterPrintln = rules.newlineAfterPrintln,
       blockIndentation = rules.blockIndentation,
       ifBraceSameLine = rules.ifBraceSameLine,
-      singleSpaceSeparation = rules.singleSpaceSeparation
+      singleSpaceSeparation = true
     )
   }
 }
