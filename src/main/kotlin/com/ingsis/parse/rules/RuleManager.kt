@@ -7,8 +7,8 @@ import rules.FormattingRules
 
 object RuleManager {
 
-  fun getDefaultFormattingRules(): FormattingRules {
-    return FormattingRules(
+  private fun getDefaultFormattingRules(): FormatRules {
+    return FormatRules(
       spaceBeforeColon = false,
       spaceAfterColon = false,
       spaceAroundAssignment = false,
@@ -27,13 +27,25 @@ object RuleManager {
     )
   }
 
-  fun getLintingRules(username: String, assetService: AssetService): String {
+  fun getLintingRulesJson(username: String, assetService: AssetService): String {
     val lintingRules = "LintingRules"
     val rulesJson = assetService.getAssetContent(username, lintingRules)
     return if (rulesJson == "Error retrieving asset content: 404 Not Found: [no body]") {
       val defaultRules = getDefaultLintingRules()
       saveRules(username, lintingRules, defaultRules, assetService)
       assetService.getAssetContent(username, lintingRules)
+    } else {
+      rulesJson
+    }
+  }
+
+  fun getFormattingRulesJson(username: String, assetService: AssetService): String {
+    val formattingRules = "FormattingRules"
+    val rulesJson = assetService.getAssetContent(username, formattingRules)
+    return if (rulesJson == "Error retrieving asset content: 404 Not Found: [no body]") {
+      val defaultRules = getDefaultFormattingRules()
+      saveRules(username, formattingRules, defaultRules, assetService)
+      assetService.getAssetContent(username, formattingRules)
     } else {
       rulesJson
     }
@@ -55,6 +67,18 @@ object RuleManager {
       identifierNamingConvention = rules.identifierNamingConvention,
       printlnExpressionAllowed = rules.printlnExpressionAllowed,
       readInputExpressionAllowed = rules.readInputExpressionAllowed
+    )
+  }
+
+  fun adaptPrintScriptFormatRules(rules: FormatRules): FormattingRules {
+    return FormattingRules(
+      spaceBeforeColon = rules.spaceBeforeColon,
+      spaceAfterColon = rules.spaceAfterColon,
+      spaceAroundAssignment = rules.spaceAroundAssignment,
+      newlineAfterPrintln = rules.newlineAfterPrintln,
+      blockIndentation = rules.blockIndentation,
+      ifBraceSameLine = rules.ifBraceSameLine,
+      singleSpaceSeparation = rules.singleSpaceSeparation
     )
   }
 }

@@ -3,6 +3,7 @@ package com.ingsis.parse.format
 import com.ingsis.parse.asset.AssetService
 import com.ingsis.parse.async.JsonUtil
 import com.ingsis.parse.language.PrintScript
+import com.ingsis.parse.rules.RuleManager
 import kotlinx.coroutines.runBlocking
 import org.austral.ingsis.redis.RedisStreamConsumer
 import org.slf4j.LoggerFactory
@@ -27,7 +28,10 @@ class FormatRequestConsumer @Autowired constructor(
   override fun onMessage(record: ObjectRecord<String, String>) {
     val formatRequest = JsonUtil.deserializeFormatRequest(record.value)
     logger.info("Received request to format snippet with request: ${formatRequest.requestId}")
-    val formattingRules = JsonUtil.deserializeFormattingRules(assetService.getAssetContent(formatRequest.author, "FormattingRules"))
+    val rulesJson = RuleManager.getFormattingRulesJson(formatRequest.author, assetService)
+
+    val formattingRules = JsonUtil.deserializeFormattingRules(rulesJson)
+
     val result = PrintScript.format(formatRequest.snippet, "1.1", formattingRules)
     logger.info("Finished formatting snippet with request: ${formatRequest.requestId}")
 

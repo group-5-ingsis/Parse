@@ -1,26 +1,28 @@
 package com.ingsis.parse.language
 
+import com.ingsis.parse.rules.FormatRules
 import com.ingsis.parse.rules.LintRules
 import com.ingsis.parse.rules.RuleManager
 import formatter.Formatter
 import lexer.Lexer
 import linter.Linter
 import parser.Parser
-import rules.FormattingRules
 import java.io.IOException
 
 object PrintScript : Language {
   override fun format(
     src: String,
     version: String,
-    rules: FormattingRules
+    rules: FormatRules
   ): String {
+    val printScriptRules = RuleManager.adaptPrintScriptFormatRules(rules)
+
     val output = StringBuilder()
 
     try {
       val tokens = Lexer(src, version)
       val asts = Parser(tokens, version, null)
-      val formattedFile = Formatter.format(asts, rules, version)
+      val formattedFile = Formatter.format(asts, printScriptRules, version)
       output.append(formattedFile)
     } catch (e: IOException) {
       System.err.println("I/O Error: ${e.message}")

@@ -28,7 +28,7 @@ class LintRequestConsumer @Autowired constructor(
   override fun onMessage(record: ObjectRecord<String, String>) {
     val formatRequest = JsonUtil.deserializeLintRequest(record.value)
     logger.info("Received request to lint snippet with request: ${formatRequest.requestId}")
-    val ruleJson = RuleManager.getLintingRules(formatRequest.author, assetService)
+    val ruleJson = RuleManager.getLintingRulesJson(formatRequest.author, assetService)
 
     val lintingRules = JsonUtil.deserializeLintingRules(ruleJson)
 

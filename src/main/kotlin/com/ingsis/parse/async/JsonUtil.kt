@@ -8,6 +8,7 @@ import com.ingsis.parse.format.FormatRequest
 import com.ingsis.parse.format.FormatResponse
 import com.ingsis.parse.lint.LintRequest
 import com.ingsis.parse.lint.LintResponse
+import com.ingsis.parse.rules.FormatRules
 import com.ingsis.parse.rules.LintRules
 import com.ingsis.parse.rules.Rule
 import rules.FormattingRules
@@ -55,7 +56,7 @@ object JsonUtil {
     }
   }
 
-  fun deserializeFormattingRules(json: String): FormattingRules {
+  fun deserializeFormattingRules(json: String): FormatRules {
     return try {
       objectMapper.readValue(json)
     } catch (e: JsonProcessingException) {
