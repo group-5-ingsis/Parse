@@ -4,7 +4,9 @@ import com.ingsis.parse.asset.AssetService
 import com.ingsis.parse.async.JsonUtil
 import com.ingsis.parse.language.PrintScript
 import com.ingsis.parse.rules.RuleManager
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.austral.ingsis.redis.RedisStreamConsumer
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -31,15 +33,34 @@ class LintRequestConsumer @Autowired constructor(
   }
 
   override fun onMessage(record: ObjectRecord<String, String>) {
-    val formatRequest = JsonUtil.deserializeLintRequest(record.value)
+    val formatRequest = try {
+      JsonUtil.deserializeLintRequest(record.value)
+    } catch (e: Exception) {
+      logger.error("Failed to deserialize lint request: ${record.value}", e)
+      return
+    }
+
     logger.info("Received request to lint snippet with requestId: ${formatRequest.requestId}")
 
     try {
       logger.debug("Deserialized format request: {}", formatRequest)
-      val ruleJson = RuleManager.getLintingRulesJson(formatRequest.author, assetService)
+
+      val ruleJson = try {
+        RuleManager.getLintingRulesJson(formatRequest.author, assetService)
+      } catch (e: Exception) {
+        logger.error("Failed to fetch linting rules for author ${formatRequest.author}: ${e.message}", e)
+        return
+      }
+
       logger.debug("Fetched linting rules JSON for author ${formatRequest.author}")
 
-      val lintingRules = JsonUtil.deserializeLintingRules(ruleJson)
+      val lintingRules = try {
+        JsonUtil.deserializeLintingRules(ruleJson)
+      } catch (e: Exception) {
+        logger.error("Failed to deserialize linting rules for author ${formatRequest.author}: ${e.message}", e)
+        return
+      }
+
       logger.debug("Deserialized linting rules: {}", lintingRules)
 
       val result = PrintScript.lint(formatRequest.snippet, "1.1", lintingRules)
@@ -51,9 +72,13 @@ class LintRequestConsumer @Autowired constructor(
         LintResponse(formatRequest.requestId, "non-compliant")
       }
 
-      runBlocking {
-        linterResponseProducer.publishEvent(JsonUtil.serializeLintResponse(response))
-        logger.info("Published lint response to producer for requestId ${formatRequest.requestId}")
+      CoroutineScope(Dispatchers.IO).launch {
+        try {
+          linterResponseProducer.publishEvent(JsonUtil.serializeLintResponse(response))
+          logger.info("Published lint response to producer for requestId ${formatRequest.requestId}")
+        } catch (e: Exception) {
+          logger.error("Error publishing lint response for requestId ${formatRequest.requestId}: ${e.message}", e)
+        }
       }
     } catch (e: Exception) {
       logger.error("Error processing lint request for requestId ${formatRequest.requestId}: ${e.message}", e)
@@ -64,7 +89,7 @@ class LintRequestConsumer @Autowired constructor(
     logger.debug("Configuring StreamReceiver options for LintRequestConsumer")
     return StreamReceiver.StreamReceiverOptions.builder()
       .targetType(String::class.java)
-      .pollTimeout(Duration.ofSeconds(1))
+      .pollTimeout(Duration.ofSeconds(5))
       .build()
   }
 }
