@@ -13,6 +13,7 @@ import org.springframework.data.redis.connection.stream.ObjectRecord
 import org.springframework.data.redis.core.ReactiveRedisTemplate
 import org.springframework.data.redis.stream.StreamReceiver
 import org.springframework.stereotype.Component
+import java.time.Duration
 
 @Component
 class FormatRequestConsumer @Autowired constructor(
@@ -60,6 +61,7 @@ class FormatRequestConsumer @Autowired constructor(
     logger.debug("Configuring StreamReceiver options for FormatRequestConsumer")
     return StreamReceiver.StreamReceiverOptions.builder()
       .targetType(String::class.java)
+      .pollTimeout(Duration.ofSeconds(1))
       .build()
   }
 }
