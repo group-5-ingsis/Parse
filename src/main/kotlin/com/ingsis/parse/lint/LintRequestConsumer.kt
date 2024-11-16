@@ -7,6 +7,7 @@ import com.ingsis.parse.rules.RuleManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import org.austral.ingsis.redis.RedisStreamConsumer
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -33,55 +34,63 @@ class LintRequestConsumer @Autowired constructor(
   }
 
   override fun onMessage(record: ObjectRecord<String, String>) {
-    val formatRequest = try {
+    val lintRequest = try {
       JsonUtil.deserializeLintRequest(record.value)
     } catch (e: Exception) {
       logger.error("Failed to deserialize lint request: ${record.value}", e)
       return
     }
 
-    logger.info("Received request to lint snippet with requestId: ${formatRequest.requestId}")
+    logger.info("Received request to lint snippet with requestId: ${lintRequest.requestId}")
 
     try {
-      logger.debug("Deserialized format request: {}", formatRequest)
+      logger.debug("Deserialized lint request: {}", lintRequest)
 
       val ruleJson = try {
-        RuleManager.getLintingRulesJson(formatRequest.author, assetService)
+        RuleManager.getLintingRulesJson(lintRequest.author, assetService)
       } catch (e: Exception) {
-        logger.error("Failed to fetch linting rules for author ${formatRequest.author}: ${e.message}", e)
+        logger.error("Failed to fetch linting rules for author ${lintRequest.author}: ${e.message}", e)
         return
       }
 
-      logger.debug("Fetched linting rules JSON for author ${formatRequest.author}")
+      logger.debug("Fetched linting rules JSON for author ${lintRequest.author}")
 
       val lintingRules = try {
         JsonUtil.deserializeLintingRules(ruleJson)
       } catch (e: Exception) {
-        logger.error("Failed to deserialize linting rules for author ${formatRequest.author}: ${e.message}", e)
+        logger.error("Failed to deserialize linting rules for author ${lintRequest.author}: ${e.message}", e)
         return
       }
 
       logger.debug("Deserialized linting rules: {}", lintingRules)
 
-      val result = PrintScript.lint(formatRequest.snippet, "1.1", lintingRules)
-      logger.info("Lint result for requestId ${formatRequest.requestId}: $result")
+      val result = PrintScript.lint(lintRequest.snippet, "1.1", lintingRules)
+      logger.info("Lint result for requestId ${lintRequest.requestId}: $result")
 
       val response = if (result.isEmpty()) {
-        LintResponse(formatRequest.requestId, "compliant")
+        LintResponse(lintRequest.requestId, "compliant")
       } else {
-        LintResponse(formatRequest.requestId, "non-compliant")
+        LintResponse(lintRequest.requestId, "non-compliant")
       }
 
       CoroutineScope(Dispatchers.IO).launch {
-        try {
-          linterResponseProducer.publishEvent(JsonUtil.serializeLintResponse(response))
-          logger.info("Published lint response to producer for requestId ${formatRequest.requestId}")
-        } catch (e: Exception) {
-          logger.error("Error publishing lint response for requestId ${formatRequest.requestId}: ${e.message}", e)
+        val timeoutMillis = 5000L
+
+        val success = withTimeoutOrNull(timeoutMillis) {
+          try {
+            linterResponseProducer.publishEvent(JsonUtil.serializeLintResponse(response))
+            logger.info("Published lint response to producer for requestId ${lintRequest.requestId}")
+          } catch (e: Exception) {
+            logger.error("Error publishing lint response for requestId ${lintRequest.requestId}: ${e.message}", e)
+          }
+        }
+
+        if (success == null) {
+          logger.error("Timed out while publishing lint response for requestId ${lintRequest.requestId}")
         }
       }
     } catch (e: Exception) {
-      logger.error("Error processing lint request for requestId ${formatRequest.requestId}: ${e.message}", e)
+      logger.error("Error processing lint request for requestId ${lintRequest.requestId}: ${e.message}", e)
     }
   }
 

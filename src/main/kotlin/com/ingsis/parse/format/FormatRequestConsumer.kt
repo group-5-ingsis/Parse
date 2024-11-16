@@ -7,6 +7,7 @@ import com.ingsis.parse.rules.RuleManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import org.austral.ingsis.redis.RedisStreamConsumer
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -69,11 +70,19 @@ class FormatRequestConsumer @Autowired constructor(
       val response = FormatResponse(formatRequest.requestId, result)
 
       CoroutineScope(Dispatchers.IO).launch {
-        try {
-          formatResponseProducer.publishEvent(JsonUtil.serializeFormatResponse(response))
-          logger.info("Published format result for requestId: ${formatRequest.requestId}")
-        } catch (e: Exception) {
-          logger.error("Error publishing format result for requestId ${formatRequest.requestId}: ${e.message}", e)
+        val timeoutMillis = 5000L
+
+        val success = withTimeoutOrNull(timeoutMillis) {
+          try {
+            formatResponseProducer.publishEvent(JsonUtil.serializeFormatResponse(response))
+            logger.info("Published format result for requestId: ${formatRequest.requestId}")
+          } catch (e: Exception) {
+            logger.error("Error publishing format result for requestId ${formatRequest.requestId}: ${e.message}", e)
+          }
+        }
+
+        if (success == null) {
+          logger.error("Timed out while publishing format result for requestId ${formatRequest.requestId}")
         }
       }
     } catch (e: Exception) {
