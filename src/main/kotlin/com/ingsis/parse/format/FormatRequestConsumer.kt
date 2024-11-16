@@ -25,24 +25,39 @@ class FormatRequestConsumer @Autowired constructor(
 
   private val logger = LoggerFactory.getLogger(FormatRequestConsumer::class.java)
 
+  init {
+    logger.info("FormatRequestConsumer initialized with stream key: $streamRequestKey and group ID: $groupId")
+  }
+
   override fun onMessage(record: ObjectRecord<String, String>) {
     val formatRequest = JsonUtil.deserializeFormatRequest(record.value)
-    logger.info("Received request to format snippet with request: ${formatRequest.requestId}")
-    val rulesJson = RuleManager.getFormattingRulesJson(formatRequest.author, assetService)
+    logger.info("Received request to format snippet with requestId: ${formatRequest.requestId}")
 
-    val formattingRules = JsonUtil.deserializeFormattingRules(rulesJson)
+    try {
+      logger.debug("Deserialized format request: {}", formatRequest)
 
-    val result = PrintScript.format(formatRequest.snippet, "1.1", formattingRules)
-    logger.info("Finished formatting snippet with request: ${formatRequest.requestId}")
+      val rulesJson = RuleManager.getFormattingRulesJson(formatRequest.author, assetService)
+      logger.debug("Fetched formatting rules JSON for author ${formatRequest.author}")
 
-    val response = FormatResponse(formatRequest.requestId, result)
-    runBlocking {
-      formatResponseProducer.publishEvent(JsonUtil.serializeFormatResponse(response))
-      logger.info("Published format result with request: ${formatRequest.requestId}")
+      val formattingRules = JsonUtil.deserializeFormattingRules(rulesJson)
+      logger.debug("Deserialized formatting rules: {}", formattingRules)
+
+      val result = PrintScript.format(formatRequest.snippet, "1.1", formattingRules)
+      logger.info("Finished formatting snippet with requestId: ${formatRequest.requestId}")
+
+      val response = FormatResponse(formatRequest.requestId, result)
+
+      runBlocking {
+        formatResponseProducer.publishEvent(JsonUtil.serializeFormatResponse(response))
+        logger.info("Published format result for requestId: ${formatRequest.requestId}")
+      }
+    } catch (e: Exception) {
+      logger.error("Error processing format request for requestId ${formatRequest.requestId}: ${e.message}", e)
     }
   }
 
   override fun options(): StreamReceiver.StreamReceiverOptions<String, ObjectRecord<String, String>> {
+    logger.debug("Configuring StreamReceiver options for FormatRequestConsumer")
     return StreamReceiver.StreamReceiverOptions.builder()
       .targetType(String::class.java)
       .build()
