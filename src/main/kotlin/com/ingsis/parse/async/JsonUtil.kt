@@ -11,7 +11,6 @@ import com.ingsis.parse.lint.LintResponse
 import com.ingsis.parse.rules.FormatRules
 import com.ingsis.parse.rules.LintRules
 import com.ingsis.parse.rules.Rule
-import rules.FormattingRules
 
 object JsonUtil {
   private val objectMapper: ObjectMapper = jacksonObjectMapper()
@@ -25,14 +24,6 @@ object JsonUtil {
   }
 
   fun serializeLintResponse(formatResponse: LintResponse): String {
-    return try {
-      objectMapper.writeValueAsString(formatResponse)
-    } catch (e: JsonProcessingException) {
-      throw RuntimeException("Failed to serialize object to JSON", e)
-    }
-  }
-
-  fun serializeFormattingRules(formatResponse: FormattingRules): String {
     return try {
       objectMapper.writeValueAsString(formatResponse)
     } catch (e: JsonProcessingException) {

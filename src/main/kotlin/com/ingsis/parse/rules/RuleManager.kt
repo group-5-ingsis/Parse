@@ -4,6 +4,8 @@ import com.ingsis.parse.asset.Asset
 import com.ingsis.parse.asset.AssetService
 import com.ingsis.parse.async.JsonUtil
 import rules.FormattingRules
+import rules.LinterRules
+import rules.LinterRulesV2
 
 object RuleManager {
 
@@ -60,9 +62,8 @@ object RuleManager {
     assetService.createOrUpdateAsset(asset)
   }
 
-  fun adaptPrintScriptLintRules(rules: LintRules): LintingRules {
-    return LintingRules(
-      version = "1.1",
+  fun adaptPrintScriptLintRules(rules: LintRules): LinterRules {
+    return LinterRulesV2(
       identifierNamingConvention = rules.identifierNamingConvention,
       printlnExpressionAllowed = rules.printlnExpressionAllowed,
       readInputExpressionAllowed = rules.readInputExpressionAllowed
