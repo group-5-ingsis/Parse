@@ -1,4 +1,4 @@
-package com.ingsis.parse.async
+package com.ingsis.parse.config
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper

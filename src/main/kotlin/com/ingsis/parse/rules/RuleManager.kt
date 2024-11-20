@@ -2,7 +2,7 @@ package com.ingsis.parse.rules
 
 import com.ingsis.parse.asset.Asset
 import com.ingsis.parse.asset.AssetService
-import com.ingsis.parse.async.JsonUtil
+import com.ingsis.parse.config.JsonUtil
 
 object RuleManager {
 

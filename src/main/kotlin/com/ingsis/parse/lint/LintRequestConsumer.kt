@@ -1,7 +1,7 @@
 package com.ingsis.parse.lint
 
 import com.ingsis.parse.asset.AssetService
-import com.ingsis.parse.async.JsonUtil
+import com.ingsis.parse.config.JsonUtil
 import com.ingsis.parse.language.PrintScript
 import com.ingsis.parse.rules.LintRules
 import com.ingsis.parse.rules.RuleManager
