@@ -2,7 +2,7 @@ package com.ingsis.parse.rules
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-sealed class Rule
+sealed interface Rule
 
 data class FormatRules(
   @JsonProperty("spaceBeforeColon") val spaceBeforeColon: Boolean,
@@ -11,10 +11,10 @@ data class FormatRules(
   @JsonProperty("newlineAfterPrintln") val newlineAfterPrintln: Int,
   @JsonProperty("blockIndentation") val blockIndentation: Int,
   @JsonProperty("if-brace-same-line") val ifBraceSameLine: Boolean
-) : Rule()
+) : Rule
 
 data class LintRules(
   @JsonProperty("identifierNamingConvention") val identifierNamingConvention: String,
   @JsonProperty("printlnExpressionAllowed") val printlnExpressionAllowed: Boolean,
   @JsonProperty("readInputExpressionAllowed") val readInputExpressionAllowed: Boolean
-) : Rule()
+) : Rule
