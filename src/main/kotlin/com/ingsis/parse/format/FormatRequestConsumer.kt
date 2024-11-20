@@ -3,6 +3,7 @@ package com.ingsis.parse.format
 import com.ingsis.parse.asset.AssetService
 import com.ingsis.parse.async.JsonUtil
 import com.ingsis.parse.language.PrintScript
+import com.ingsis.parse.rules.FormatRules
 import com.ingsis.parse.rules.RuleManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -47,7 +48,7 @@ class FormatRequestConsumer @Autowired constructor(
       logger.debug("Deserialized format request: {}", formatRequest)
 
       val rulesJson = try {
-        RuleManager.getFormattingRulesJson(formatRequest.author, assetService)
+        RuleManager.getRules(formatRequest.author, FormatRules.KEY, assetService)
       } catch (e: Exception) {
         logger.error("Failed to fetch formatting rules for author ${formatRequest.author}: ${e.message}", e)
         return

@@ -2,7 +2,7 @@ package com.ingsis.parse.language
 
 import com.ingsis.parse.rules.FormatRules
 import com.ingsis.parse.rules.LintRules
-import com.ingsis.parse.rules.RuleManager
+import com.ingsis.parse.rules.RuleAdapter
 import formatter.Formatter
 import lexer.Lexer
 import linter.Linter
@@ -15,7 +15,7 @@ object PrintScript : Language {
     version: String,
     rules: FormatRules
   ): String {
-    val printScriptRules = RuleManager.adaptPrintScriptFormatRules(rules)
+    val printScriptRules = RuleAdapter.toPrintScriptFormattingRules(rules)
 
     val output = StringBuilder()
 
@@ -42,7 +42,7 @@ object PrintScript : Language {
     version: String,
     rules: LintRules
   ): List<String> {
-    val printScriptRules = RuleManager.adaptPrintScriptLintRules(rules)
+    val printScriptRules = RuleAdapter.toPrintScriptLinterRules(rules)
     val tokens = Lexer(src, version)
 
     val errors = mutableListOf<String>()

@@ -3,6 +3,7 @@ package com.ingsis.parse.lint
 import com.ingsis.parse.asset.AssetService
 import com.ingsis.parse.async.JsonUtil
 import com.ingsis.parse.language.PrintScript
+import com.ingsis.parse.rules.LintRules
 import com.ingsis.parse.rules.RuleManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -47,7 +48,7 @@ class LintRequestConsumer @Autowired constructor(
       logger.debug("Deserialized lint request: {}", lintRequest)
 
       val ruleJson = try {
-        RuleManager.getLintingRulesJson(lintRequest.author, assetService)
+        RuleManager.getRules(lintRequest.author, LintRules.KEY, assetService)
       } catch (e: Exception) {
         logger.error("Failed to fetch linting rules for author ${lintRequest.author}: ${e.message}", e)
         return
