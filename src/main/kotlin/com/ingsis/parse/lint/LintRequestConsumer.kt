@@ -48,7 +48,7 @@ class LintRequestConsumer @Autowired constructor(
       logger.debug("Deserialized lint request: {}", lintRequest)
 
       val ruleJson = try {
-        RuleManager.getRules(lintRequest.author, LintRules.KEY, assetService)
+        RuleManager.getLintingRules(lintRequest.author, LintRules.KEY, assetService)
       } catch (e: Exception) {
         logger.error("Failed to fetch linting rules for author ${lintRequest.author}: ${e.message}", e)
         return

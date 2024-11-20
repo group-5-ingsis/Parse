@@ -2,17 +2,7 @@ package com.ingsis.parse.rules
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-sealed interface Rule {
-  companion object {
-    fun getDefault(type: String): Rule {
-      return when (type) {
-        FormatRules.KEY -> FormatRules.asDefault()
-        LintRules.KEY -> LintRules.asDefault()
-        else -> throw IllegalArgumentException("Unknown rule type: $type")
-      }
-    }
-  }
-}
+sealed interface Rule
 
 data class FormatRules(
   @JsonProperty("spaceBeforeColon") val spaceBeforeColon: Boolean,
@@ -23,7 +13,7 @@ data class FormatRules(
   @JsonProperty("if-brace-same-line") val ifBraceSameLine: Boolean
 ) : Rule {
   companion object {
-    fun asDefault(): Rule {
+    fun asDefault(): FormatRules {
       return FormatRules(
         spaceBeforeColon = false,
         spaceAfterColon = false,
@@ -44,7 +34,7 @@ data class LintRules(
   @JsonProperty("readInputExpressionAllowed") val readInputExpressionAllowed: Boolean
 ) : Rule {
   companion object {
-    fun asDefault(): Rule {
+    fun asDefault(): LintRules {
       return LintRules(
         identifierNamingConvention = "snake-case",
         printlnExpressionAllowed = false,

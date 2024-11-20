@@ -48,7 +48,7 @@ class FormatRequestConsumer @Autowired constructor(
       logger.debug("Deserialized format request: {}", formatRequest)
 
       val rulesJson = try {
-        RuleManager.getRules(formatRequest.author, FormatRules.KEY, assetService)
+        RuleManager.getFormattingRules(formatRequest.author, FormatRules.KEY, assetService)
       } catch (e: Exception) {
         logger.error("Failed to fetch formatting rules for author ${formatRequest.author}: ${e.message}", e)
         return

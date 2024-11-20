@@ -6,11 +6,22 @@ import com.ingsis.parse.config.JsonUtil
 
 object RuleManager {
 
-  fun getRules(username: String, type: String, assetService: AssetService): String {
+  fun getFormattingRules(username: String, type: String, assetService: AssetService): String {
     val rulesJson = assetService.getAssetContent(username, type)
     return if (rulesJson == "Error retrieving asset content: 404 Not Found: [no body]") {
-      val defaultRules = Rule.getDefault(type)
-      saveRules(username, type, defaultRules, assetService)
+      val rules = FormatRules.asDefault()
+      saveRules(username, type, rules, assetService)
+      assetService.getAssetContent(username, type)
+    } else {
+      rulesJson
+    }
+  }
+
+  fun getLintingRules(username: String, type: String, assetService: AssetService): String {
+    val rulesJson = assetService.getAssetContent(username, type)
+    return if (rulesJson == "Error retrieving asset content: 404 Not Found: [no body]") {
+      val rules = LintRules.asDefault()
+      saveRules(username, type, rules, assetService)
       assetService.getAssetContent(username, type)
     } else {
       rulesJson

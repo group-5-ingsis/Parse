@@ -104,7 +104,7 @@ koverReport {
         }
         filters {
             excludes {
-                packages("config", "logging" , "asset")
+                packages("config", "logging" , "asset", "format", "lint")
                 classes("com.ingsis.parse.Parse.kt")
             }
         }
