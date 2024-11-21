@@ -73,8 +73,22 @@ class LintRequestConsumer @Autowired constructor(
   }
 
   private fun lintSnippet(language: Language, lintRequest: LintRequest, lintingRules: LintRules): List<String> {
-    val version = lintRequest.version
+    val version = getLanguageVersion(lintRequest, language)
     return language.lint(lintRequest.snippet, version, lintingRules)
+  }
+
+  private fun getLanguageVersion(
+    lintRequest: LintRequest,
+    language: Language
+  ): String {
+    val snippetLanguage = lintRequest.language
+    val parts = snippetLanguage.split(" ", limit = 2)
+    if (parts.size != 2) {
+      throw IllegalArgumentException("Invalid language format. Expected format: 'LanguageName version'. Got: $language")
+    }
+
+    val version = parts[1]
+    return version
   }
 
   private fun createLintResponse(lintRequest: LintRequest, result: List<String>): LintResponse {

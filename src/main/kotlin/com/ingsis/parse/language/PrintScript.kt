@@ -58,9 +58,10 @@ object PrintScript : Language {
         }
       } catch (e: Exception) {
         errors.add("Error during linting: ${e.message}")
+      } catch (e: Error) {
+        errors.add("Critical error during linting: ${e.message}")
       }
     }
-
     return errors
   }
 }
