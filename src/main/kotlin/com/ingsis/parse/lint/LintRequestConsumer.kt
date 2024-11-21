@@ -1,8 +1,11 @@
 package com.ingsis.parse.lint
 
+import LanguageProvider
 import com.ingsis.parse.asset.AssetService
+import com.ingsis.parse.async.LintRequest
+import com.ingsis.parse.async.LintResponse
 import com.ingsis.parse.config.JsonUtil
-import com.ingsis.parse.language.PrintScript
+import com.ingsis.parse.language.Language
 import com.ingsis.parse.rules.LintRules
 import com.ingsis.parse.rules.RuleManager
 import kotlinx.coroutines.CoroutineScope
@@ -35,63 +38,64 @@ class LintRequestConsumer @Autowired constructor(
   }
 
   override fun onMessage(record: ObjectRecord<String, String>) {
-    val lintRequest = try {
-      JsonUtil.deserializeLintRequest(record.value)
-    } catch (e: Exception) {
-      logger.error("Failed to deserialize lint request: ${record.value}", e)
-      return
-    }
-
+    val lintRequest = deserializeLintRequest(record.value) ?: return
     logger.info("Received request to lint snippet with requestId: ${lintRequest.requestId}")
+    processLintRequest(lintRequest)
+  }
 
+  private fun deserializeLintRequest(recordValue: String): LintRequest? {
+    return try {
+      JsonUtil.deserializeLintRequest(recordValue)
+    } catch (e: Exception) {
+      logger.error("Failed to deserialize lint request: $recordValue", e)
+      null
+    }
+  }
+
+  private fun processLintRequest(lintRequest: LintRequest) {
     try {
-      logger.debug("Deserialized lint request: {}", lintRequest)
+      val lintingRules = fetchLintingRules(lintRequest)
 
-      val ruleJson = try {
-        RuleManager.getLintingRules(lintRequest.author, LintRules.KEY, assetService)
-      } catch (e: Exception) {
-        logger.error("Failed to fetch linting rules for author ${lintRequest.author}: ${e.message}", e)
-        return
-      }
+      val language = LanguageProvider.getLanguage(lintRequest.language)
+      val result = lintSnippet(language, lintRequest, lintingRules)
 
-      logger.debug("Fetched linting rules JSON for author ${lintRequest.author}")
+      val response = createLintResponse(lintRequest, result)
 
-      val lintingRules = try {
-        JsonUtil.deserializeLintingRules(ruleJson)
-      } catch (e: Exception) {
-        logger.error("Failed to deserialize linting rules for author ${lintRequest.author}: ${e.message}", e)
-        return
-      }
-
-      logger.debug("Deserialized linting rules: {}", lintingRules)
-
-      val result = PrintScript.lint(lintRequest.snippet, "1.1", lintingRules)
-      logger.info("Lint result for requestId ${lintRequest.requestId}: $result")
-
-      val response = if (result.isEmpty()) {
-        LintResponse(lintRequest.requestId, "compliant")
-      } else {
-        LintResponse(lintRequest.requestId, "non-compliant")
-      }
-
-      CoroutineScope(Dispatchers.IO).launch {
-        val timeoutMillis = 5000L
-
-        val success = withTimeoutOrNull(timeoutMillis) {
-          try {
-            linterResponseProducer.publishEvent(JsonUtil.serializeLintResponse(response))
-            logger.info("Published lint response to producer for requestId ${lintRequest.requestId}")
-          } catch (e: Exception) {
-            logger.error("Error publishing lint response for requestId ${lintRequest.requestId}: ${e.message}", e)
-          }
-        }
-
-        if (success == null) {
-          logger.error("Timed out while publishing lint response for requestId ${lintRequest.requestId}")
-        }
-      }
+      publishLintResponse(response)
     } catch (e: Exception) {
       logger.error("Error processing lint request for requestId ${lintRequest.requestId}: ${e.message}", e)
+    }
+  }
+
+  private fun fetchLintingRules(lintRequest: LintRequest): LintRules {
+    val ruleJson = RuleManager.getLintingRules(lintRequest.author, LintRules.KEY, assetService)
+    return JsonUtil.deserializeLintingRules(ruleJson)
+  }
+
+  private fun lintSnippet(language: Language, lintRequest: LintRequest, lintingRules: LintRules): List<String> {
+    val version = lintRequest.version
+    return language.lint(lintRequest.snippet, version, lintingRules)
+  }
+
+  private fun createLintResponse(lintRequest: LintRequest, result: List<String>): LintResponse {
+    val status = if (result.isEmpty()) "compliant" else "non-compliant"
+    return LintResponse(lintRequest.requestId, status)
+  }
+
+  private fun publishLintResponse(response: LintResponse) {
+    CoroutineScope(Dispatchers.IO).launch {
+      val timeoutMillis = 5000L
+      val success = withTimeoutOrNull(timeoutMillis) {
+        try {
+          linterResponseProducer.publishEvent(JsonUtil.serializeLintResponse(response))
+          logger.info("Published lint response to producer for requestId ${response.requestId}")
+        } catch (e: Exception) {
+          logger.error("Error publishing lint response for requestId ${response.requestId}: ${e.message}", e)
+        }
+      }
+      if (success == null) {
+        logger.error("Timed out while publishing lint response for requestId ${response.requestId}")
+      }
     }
   }
 

@@ -4,10 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.ingsis.parse.format.FormatRequest
-import com.ingsis.parse.format.FormatResponse
-import com.ingsis.parse.lint.LintRequest
-import com.ingsis.parse.lint.LintResponse
+import com.ingsis.parse.async.FormatRequest
+import com.ingsis.parse.async.FormatResponse
+import com.ingsis.parse.async.LintRequest
+import com.ingsis.parse.async.LintResponse
 import com.ingsis.parse.rules.FormatRules
 import com.ingsis.parse.rules.LintRules
 import com.ingsis.parse.rules.Rule
