@@ -1,13 +1,9 @@
 plugins {
-    // Kotlin
+    id "de.undercouch.download" version "5.3.0"
     id 'org.jetbrains.kotlin.jvm' version '1.9.25'
-
-    //Springboot
     id 'org.springframework.boot' version '3.3.4'
     id 'io.spring.dependency-management' version '1.1.6'
     id 'org.jetbrains.kotlin.plugin.jpa' version '1.9.25'
-
-    // Formatter & Linter
     id 'org.jlleitschuh.gradle.ktlint' version '11.5.0'
     id 'org.jetbrains.kotlinx.kover' version '0.7.3'
 }
@@ -21,6 +17,26 @@ java {
 	}
 }
 
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/group-5-ingsis/PrintScript")
+        credentials {
+            username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+            password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+        }
+    }
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/austral-ingsis/class-redis-streams")
+        credentials {
+            username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+            password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+        }
+    }
+}
 
 repositories {
 	mavenCentral()
@@ -30,6 +46,10 @@ dependencies {
 
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-core:1.7.1'
+    implementation 'org.austral.ingsis:redis-streams-flux:0.1.13'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -38,18 +58,24 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-reactor'
     implementation 'io.projectreactor.kotlin:reactor-kotlin-extensions'
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.17.1'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
 
-    annotationProcessor('org.projectlombok:lombok:1.18.34')
+    implementation 'com.ingsis:lexer:1.1.0'
+    implementation 'com.ingsis:parser:1.1.0'
+    implementation 'com.ingsis:formatter:1.1.0'
+    implementation 'com.ingsis:linter:1.1.0'
+    implementation 'com.ingsis:interpreter:1.1.0'
+
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
-    testImplementation("org.postgresql:postgresql")
+    testImplementation 'org.postgresql:postgresql'
     testImplementation 'io.projectreactor:reactor-test'
-    testImplementation('org.mockito.kotlin:mockito-kotlin:5.4.0')
-
+    testImplementation 'org.mockito.kotlin:mockito-kotlin:5.4.0'
     testImplementation 'org.amshove.kluent:kluent:1.73'
-    testImplementation("com.h2database:h2")
+    testImplementation 'com.h2database:h2'
 
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
@@ -78,7 +104,7 @@ koverReport {
         }
         filters {
             excludes {
-                packages("config")
+                packages("config", "logging" , "asset", "format", "lint")
                 classes("com.ingsis.parse.Parse.kt")
             }
         }
@@ -102,4 +128,15 @@ test {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+task downloadNewrelic(type: Download) {
+    mkdir 'newrelic'
+    src 'https://download.newrelic.com/newrelic/java-agent/newrelic-agent/current/newrelic-java.zip'
+    dest file('newrelic')
+}
+
+task unzipNewrelic(type: Copy) {
+    from zipTree(file('newrelic/newrelic-java.zip'))
+    into rootDir
 }
