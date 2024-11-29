@@ -1,6 +1,7 @@
 package com.ingsis.parse.parse
 
 import com.ingsis.parse.asset.AssetService
+import com.ingsis.parse.language.LanguageProvider
 import com.ingsis.parse.language.PrintScript
 import com.ingsis.parse.rules.FormatRules
 import com.ingsis.parse.rules.LintRules
@@ -87,6 +88,19 @@ class ParseE2ETests {
   }
 
   @Test
+  fun `should lint code correctly with incorrect rules`() {
+    val src = "println(2 + 2);"
+    val version = "1.1"
+
+    val rules = LintRules.asDefault()
+
+    val result = PrintScript.lint(src, version, rules)
+
+    val expected = listOf("Errors found, see getErrors() for details")
+    assertEquals(expected, result)
+  }
+
+  @Test
   fun `test toPrintScriptFormattingRules`() {
     val formatRules = FormatRules(
       spaceBeforeColon = true,
@@ -122,5 +136,12 @@ class ParseE2ETests {
     assertEquals("camelCase", a["identifierNamingConvention"])
     assertEquals(true, a["printlnExpressionAllowed"])
     assertEquals(false, a["readInputExpressionAllowed"])
+  }
+
+  @Test
+  fun getLanguagesTest() {
+    val expected = PrintScript
+    val actual = LanguageProvider.getLanguage("printScript")
+    assertEquals(expected, actual)
   }
 }

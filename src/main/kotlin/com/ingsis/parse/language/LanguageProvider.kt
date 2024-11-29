@@ -1,5 +1,4 @@
-import com.ingsis.parse.language.Language
-import com.ingsis.parse.language.PrintScript
+package com.ingsis.parse.language
 
 object LanguageProvider {
 

@@ -1,11 +1,11 @@
 package com.ingsis.parse.lint
 
-import LanguageProvider
 import com.ingsis.parse.asset.AssetService
 import com.ingsis.parse.async.LintRequest
 import com.ingsis.parse.async.LintResponse
 import com.ingsis.parse.config.JsonUtil
 import com.ingsis.parse.language.Language
+import com.ingsis.parse.language.LanguageProvider
 import com.ingsis.parse.rules.LintRules
 import com.ingsis.parse.rules.RuleManager
 import kotlinx.coroutines.CoroutineScope
