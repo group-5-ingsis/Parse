@@ -96,7 +96,7 @@ class ParseE2ETests {
 
     val result = PrintScript.lint(src, version, rules)
 
-    val expected = listOf<String>()
+    val expected = listOf("Errors found, see getErrors() for details")
     assertEquals(expected, result)
   }
 
